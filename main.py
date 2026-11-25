@@ -1,6 +1,7 @@
 import os
 from flask import Flask, jsonify
 from flask_cors import CORS
+from flask_jwt_extended import JWTManager
 
 from app.config import settings
 from app.database import db
@@ -45,7 +46,8 @@ def create_app() -> Flask:
     )
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
     app.config["SECRET_KEY"] = getattr(settings, "JWT_SECRET_KEY", "focusflow-secret")
-    app.config["JWT_SECRET_KEY"] = app.config["SECRET_KEY"]
+    app.config["JWT_SECRET_KEY"] = getattr(settings, "JWT_SECRET_KEY", app.config["SECRET_KEY"])
+    app.config["JWT_ALGORITHM"] = getattr(settings, "JWT_ALGORITHM", "HS256")
     app.config["ACCESS_TOKEN_EXPIRE_MINUTES"] = getattr(
         settings, "ACCESS_TOKEN_EXPIRE_MINUTES", 60 * 24
     )
@@ -68,29 +70,30 @@ def create_app() -> Flask:
 
     CORS(
         app,
-        resources={r"/api/*": {"origins": allowed_origins}},
+        resources={r"/*": {"origins": allowed_origins}},
         supports_credentials=True,
         allow_headers=["Content-Type", "Authorization"],
         methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     )
 
     db.init_app(app)
+    JWTManager(app)
 
     if JWTManager is not None:
         JWTManager(app)
 
-    app.register_blueprint(auth_bp)
+    app.register_blueprint(auth_bp, url_prefix="/api")
 
     if github_bp is not None:
-        app.register_blueprint(github_bp)
+        app.register_blueprint(github_bp, url_prefix="/api/github")
     if tasks_bp is not None:
-        app.register_blueprint(tasks_bp)
+        app.register_blueprint(tasks_bp, url_prefix="/api/tasks")
     if projects_bp is not None:
-        app.register_blueprint(projects_bp)
+        app.register_blueprint(projects_bp, url_prefix="/api/projects")
     if notes_bp is not None:
-        app.register_blueprint(notes_bp)
+        app.register_blueprint(notes_bp, url_prefix="/api/notes")
     if analytics_bp is not None:
-        app.register_blueprint(analytics_bp)
+        app.register_blueprint(analytics_bp, url_prefix="/api/analytics")
 
     @app.get("/")
     def index():

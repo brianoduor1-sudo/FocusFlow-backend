@@ -45,8 +45,10 @@ class Note(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     project_id = db.Column(db.Integer, db.ForeignKey('project.id'), nullable=True)
     task_id = db.Column(db.Integer, db.ForeignKey('task.id'), nullable=True)
+    title = db.Column(db.String(150), nullable=True) 
     content = db.Column(db.Text, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
 
 class FocusSession(db.Model):

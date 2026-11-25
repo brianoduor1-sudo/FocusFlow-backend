@@ -7,7 +7,7 @@ from app.models import GitHubAccount
 from app.security import encrypt_token
 from app.services.github_service import GitHubService, GitHubServiceError
 
-github_bp = Blueprint("github", __name__, url_prefix="/api/github")
+github_bp = Blueprint("github", __name__, url_prefix="/github")
 
 
 def _clean_github_username(raw: str) -> str:
