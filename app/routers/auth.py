@@ -173,7 +173,7 @@ def change_password():
 
 
 
-    OTP_MINUTES = 10
+OTP_MINUTES = 10
 MAX_OTP_ATTEMPTS = 5
 FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:5173")
 
