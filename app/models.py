@@ -90,3 +90,13 @@ class GitHubAccount(db.Model):
     github_username = db.Column(db.String(100), nullable=False)
     access_token_encrypted = db.Column(db.Text, nullable=False, default="public_only")
     connected_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+
+class PasswordReset(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+    otp_hash = db.Column(db.String(255), nullable=False)
+    expires_at = db.Column(db.DateTime, nullable=False)
+    attempts = db.Column(db.Integer, default=0)
+    used = db.Column(db.Boolean, default=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
