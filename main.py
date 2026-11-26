@@ -99,6 +99,8 @@ def create_app() -> Flask:
 
     if github_bp is not None:
         app.register_blueprint(github_bp, url_prefix="/api/github")
+    if github_bp is not None:
+        app.register_blueprint(github_bp, url_prefix="/api")
     if tasks_bp is not None:
         app.register_blueprint(tasks_bp, url_prefix="/api/tasks")
     if projects_bp is not None:
