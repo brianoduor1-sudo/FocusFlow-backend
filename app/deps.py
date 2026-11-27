@@ -7,14 +7,12 @@ from app.security import decode_access_token
 
 COOKIE_NAME = "token"
 
-
 def error_response(message, status=400, errors=None):
-    """Consistent JSON errors: {"error": "...", "errors": {...}}. The frontend (api.js) reads "error"."""
+    
     body = {"error": message}
     if errors:
         body["errors"] = errors
     return jsonify(body), status
-
 
 def _get_token():
     token = request.cookies.get(COOKIE_NAME)
@@ -25,9 +23,8 @@ def _get_token():
         return header[7:].strip() or None
     return None
 
-
 def login_required(view):
-    """Decorator: returns 401 JSON unless a valid login token is present."""
+    
 
     @wraps(view)
     def wrapper(*args, **kwargs):
@@ -39,9 +36,8 @@ def login_required(view):
 
     return wrapper
 
-
 def current_user():
-    """Load the logged-in user from the access_token cookie / Bearer header."""
+    
     if "current_user" in g:
         return g.current_user
     token = _get_token()

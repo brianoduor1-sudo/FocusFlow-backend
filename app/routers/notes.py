@@ -11,13 +11,10 @@ try:
 except ImportError:  
     Project = None
 
-# strict_slashes=False below makes /notes and /notes/ both work (no redirect, which
-# would break the browser's CORS check).
 notes_bp = Blueprint("notes", __name__, url_prefix="/notes")
 
 MAX_TITLE = 150
 MAX_CONTENT = 10000
-
 
 def _error(message, status=400, errors=None):
     body = {"error": message}
@@ -25,20 +22,17 @@ def _error(message, status=400, errors=None):
         body["errors"] = errors
     return jsonify(body), status
 
-
 def _now():
-    """Current UTC time as a naive datetime (matches the plain DateTime columns)."""
+    
     return datetime.now(timezone.utc).replace(tzinfo=None)
 
-
 def _iso(value):
-    """Datetime -> '2026-11-25T10:30:00Z' (naive values are treated as UTC)."""
+    
     if not value:
         return None
     if value.tzinfo is None:
         value = value.replace(tzinfo=timezone.utc)
     return value.astimezone(timezone.utc).isoformat().replace("+00:00", "Z")
-
 
 def note_to_dict(note):
     return {
@@ -51,18 +45,15 @@ def note_to_dict(note):
         "updated_at": _iso(note.updated_at or note.created_at),
     }
 
-
 def _json_body():
     data = request.get_json(silent=True)
     return data if isinstance(data, dict) else {}
 
-
 def _user_id():
     return int(get_jwt_identity())
 
-
 def _check_project(user_id, value):
-    """(project_id, error_text). An empty value is fine: a note doesn't need a project."""
+    
     if value is None or value == "":
         return None, None
     try:
@@ -73,9 +64,8 @@ def _check_project(user_id, value):
         return None, "Project not found"
     return project_id, None
 
-
 def _clean_text(data, key, limit, current=""):
-    """Returns (text, error). Missing key keeps `current`; null becomes ''."""
+    
     if key not in data:
         return current, None
     value = data[key]
@@ -87,14 +77,12 @@ def _clean_text(data, key, limit, current=""):
         return current, f"{key.capitalize()} must be {limit} characters or fewer"
     return value, None
 
-
 def _commit():
     try:
         db.session.commit()
     except Exception:
         db.session.rollback()
         raise
-
 
 @notes_bp.route("", methods=["GET"], strict_slashes=False)
 @jwt_required()
@@ -110,10 +98,9 @@ def get_notes():
             return _error("Invalid project_id filter", 400)
 
     notes = query.all()
-    # Most recently edited first
+    
     notes.sort(key=lambda n: n.updated_at or n.created_at or datetime.min, reverse=True)
     return jsonify([note_to_dict(n) for n in notes]), 200
-
 
 @notes_bp.route("", methods=["POST"], strict_slashes=False)
 @jwt_required()
@@ -153,7 +140,6 @@ def create_note():
     _commit()
     return jsonify(note_to_dict(note)), 201
 
-
 @notes_bp.route("/<int:note_id>", methods=["PUT", "PATCH"])
 @jwt_required()
 def update_note(note_id):
@@ -191,7 +177,6 @@ def update_note(note_id):
     note.updated_at = _now()
     _commit()
     return jsonify(note_to_dict(note)), 200
-
 
 @notes_bp.route("/<int:note_id>", methods=["DELETE"])
 @jwt_required()

@@ -17,24 +17,19 @@ tasks_bp = Blueprint("tasks", __name__, url_prefix="/tasks")
 
 PRIORITY_ORDER = {"high": 0, "medium": 1, "low": 2}
 
-
 def _now():
     return datetime.now(timezone.utc)
 
-
 def _current_user_id():
     return int(get_jwt_identity())
-
 
 def _project_belongs_to_user(project_id, user_id):
     if project_id is None:
         return True
     return Project.query.filter_by(id=project_id, user_id=user_id).first() is not None
 
-
 def _get_owned_task(task_id, user_id):
     return Task.query.filter_by(id=task_id, user_id=user_id).first()
-
 
 def _apply_status(task, new_status):
     old_status = task.status
@@ -44,10 +39,8 @@ def _apply_status(task, new_status):
     elif new_status != "done" and old_status == "done":
         task.completed_at = None
 
-
 def _bad_request(err):
     return jsonify({"error": err.message, "errors": err.errors}), 400
-
 
 @tasks_bp.route("", methods=["GET"])
 @jwt_required()
@@ -94,7 +87,6 @@ def list_tasks():
     )
     return jsonify([task_to_dict(t) for t in tasks]), 200
 
-
 @tasks_bp.route("", methods=["POST"])
 @jwt_required()
 def create_task():
@@ -126,7 +118,6 @@ def create_task():
     db.session.commit()
     return jsonify(task_to_dict(task)), 201
 
-
 @tasks_bp.route("/<int:task_id>", methods=["GET"])
 @jwt_required()
 def get_task(task_id):
@@ -134,7 +125,6 @@ def get_task(task_id):
     if not task:
         return jsonify({"error": "Task not found"}), 404
     return jsonify(task_to_dict(task)), 200
-
 
 @tasks_bp.route("/<int:task_id>", methods=["PUT", "PATCH"])
 @jwt_required()
@@ -161,7 +151,6 @@ def update_task(task_id):
 
     db.session.commit()
     return jsonify(task_to_dict(task)), 200
-
 
 @tasks_bp.route("/<int:task_id>", methods=["DELETE"])
 @jwt_required()

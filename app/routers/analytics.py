@@ -8,7 +8,6 @@ from app.helpers import utc_now
 
 analytics_bp = Blueprint("analytics", __name__, url_prefix="/analytics")
 
-
 def get_focus_sessions(user_id, since=None):
     query = FocusSession.query.filter(
         FocusSession.user_id == user_id,
@@ -19,7 +18,6 @@ def get_focus_sessions(user_id, since=None):
 
     sessions = query.all()
     return [s for s in sessions if (getattr(s, "session_type", None) or "focus") == "focus"]
-
 
 def calculate_streaks(active_days, today):
     if not active_days:
@@ -44,7 +42,6 @@ def calculate_streaks(active_days, today):
         day = day - timedelta(days=1)
 
     return current, longest
-
 
 @analytics_bp.route("/summary", methods=["GET"])
 @jwt_required()
@@ -114,7 +111,6 @@ def get_summary():
         "current_streak": current_streak,
         "longest_streak": longest_streak,
     }), 200
-
 
 @analytics_bp.route("/trends", methods=["GET"])
 @jwt_required()
@@ -187,7 +183,6 @@ def get_trends():
         "daily": list(daily.values()),
         "by_project": by_project,
     }), 200
-
 
 @analytics_bp.route("/log-focus", methods=["POST"])
 @jwt_required()

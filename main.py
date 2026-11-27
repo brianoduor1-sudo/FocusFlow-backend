@@ -37,29 +37,41 @@ try:
 except ImportError:
     analytics_bp = None
 
-
 def create_app() -> Flask:
     app = Flask(__name__)
 
+    frontend_url = (
+        (os.environ.get("FRONTEND_URL") or "https://focusflow-8akp.onrender.com")
+        .strip()
+        .rstrip("/")
+    )
+    is_https = frontend_url.startswith("https://")
+
     app.config["SQLALCHEMY_DATABASE_URI"] = getattr(
-        settings, "SQLALCHEMY_DATABASE_URI", os.environ.get("DATABASE_URL", "sqlite:///focusflow.db")
+        settings,
+        "SQLALCHEMY_DATABASE_URI",
+        os.environ.get("DATABASE_URL", "sqlite:///focusflow.db"),
     )
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
     app.config["SECRET_KEY"] = getattr(settings, "JWT_SECRET_KEY", "focusflow-secret")
-    app.config["JWT_SECRET_KEY"] = getattr(settings, "JWT_SECRET_KEY", app.config["SECRET_KEY"])
+    app.config["JWT_SECRET_KEY"] = getattr(
+        settings, "JWT_SECRET_KEY", app.config["SECRET_KEY"]
+    )
     app.config["JWT_ALGORITHM"] = getattr(settings, "JWT_ALGORITHM", "HS256")
     app.config["ACCESS_TOKEN_EXPIRE_MINUTES"] = getattr(
         settings, "ACCESS_TOKEN_EXPIRE_MINUTES", 60 * 24
     )
     app.config["JWT_TOKEN_LOCATION"] = ["cookies", "headers"]
     app.config["JWT_ACCESS_COOKIE_NAME"] = "token"
-    app.config["COOKIE_SECURE"] = False
-    app.config["COOKIE_SAMESITE"] = "Lax"
-    app.config["JWT_COOKIE_SECURE"] = False
-    app.config["JWT_COOKIE_SAMESITE"] = "Lax"
+    app.config["COOKIE_SECURE"] = is_https
+    app.config["COOKIE_SAMESITE"] = "None" if is_https else "Lax"
+    app.config["JWT_COOKIE_SECURE"] = is_https
+    app.config["JWT_COOKIE_SAMESITE"] = "None" if is_https else "Lax"
     app.config["JWT_COOKIE_CSRF_PROTECT"] = False
 
     allowed_origins = [
+        frontend_url,
+        "https://focusflow-8akp.onrender.com",
         "http://localhost:5173",
         "http://127.0.0.1:5173",
         "http://localhost:5174",
@@ -107,7 +119,6 @@ def create_app() -> Flask:
         db.create_all()
 
     return app
-
 
 app = create_app()
 

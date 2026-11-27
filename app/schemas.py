@@ -1,22 +1,18 @@
 import re
 from datetime import date, timezone
 
-
 class ValidationError(Exception):
     def __init__(self, errors):
         self.errors = errors
         self.message = next(iter(errors.values())) if errors else "Invalid data"
         super().__init__(self.message)
 
-
 EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 MIN_PASSWORD_LENGTH = 8
 MAX_PASSWORD_LENGTH = 128
 
-
 def _clean_email(value):
     return value.strip().lower() if isinstance(value, str) else ""
-
 
 def validate_register(data):
     errors = {}
@@ -45,7 +41,6 @@ def validate_register(data):
         raise ValidationError(errors)
     return {"name": name, "email": email, "password": password}
 
-
 def validate_login(data):
     errors = {}
     email = _clean_email(data.get("email"))
@@ -57,7 +52,6 @@ def validate_login(data):
     if errors:
         raise ValidationError(errors)
     return {"email": email, "password": password}
-
 
 PRIORITIES = ("low", "medium", "high")
 STATUSES = ("todo", "in_progress", "in_review", "done")
@@ -78,13 +72,11 @@ _STATUS_ALIASES = {
     "completed": "done",
 }
 
-
 def normalize_status(value):
     if not isinstance(value, str):
         return None
     key = value.strip().lower().replace("-", "_").replace(" ", "_")
     return _STATUS_ALIASES.get(key)
-
 
 def normalize_priority(value):
     if not isinstance(value, str):
@@ -92,13 +84,11 @@ def normalize_priority(value):
     key = value.strip().lower()
     return key if key in PRIORITIES else None
 
-
 def normalize_issue_type(value):
     if not isinstance(value, str):
         return None
     key = value.strip().lower()
     return key if key in ISSUE_TYPES else None
-
 
 def parse_due_date(value):
     if value is None or value == "":
@@ -107,7 +97,6 @@ def parse_due_date(value):
         raise ValueError("bad date")
     return date.fromisoformat(value[:10])
 
-
 def parse_project_id(value):
     if value is None or value == "":
         return None
@@ -115,13 +104,11 @@ def parse_project_id(value):
         raise ValueError("bad project id")
     return int(value)
 
-
 def _present(data, *names):
     for name in names:
         if name in data:
             return True, data[name]
     return False, None
-
 
 def validate_task(data, partial=False):
     cleaned, errors = {}, {}
@@ -215,14 +202,12 @@ def validate_task(data, partial=False):
         raise ValidationError(errors)
     return cleaned
 
-
 def _iso_datetime(value):
     if not value:
         return None
     if value.tzinfo is None:
         value = value.replace(tzinfo=timezone.utc)
     return value.astimezone(timezone.utc).isoformat().replace("+00:00", "Z")
-
 
 def task_to_dict(task):
     project = getattr(task, "project", None)
@@ -244,7 +229,6 @@ def task_to_dict(task):
         "created_at": _iso_datetime(getattr(task, "created_at", None)),
         "updated_at": _iso_datetime(getattr(task, "updated_at", None)),
     }
-
 
 def user_to_dict(user):
     return {
