@@ -1,13 +1,11 @@
 import httpx
 from app.security import decrypt_token
 
-
 class GitHubServiceError(Exception):
     def __init__(self, message: str, status_code: int = 400):
         super().__init__(message)
         self.message = message
         self.status_code = status_code
-
 
 class GitHubService:
     BASE_URL = "https://api.github.com"

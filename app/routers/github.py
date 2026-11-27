@@ -7,8 +7,7 @@ from app.models import GitHubAccount
 from app.security import encrypt_token
 from app.services.github_service import GitHubService, GitHubServiceError
 
-github_bp = Blueprint("github", __name__, url_prefix="/github")
-
+github_bp = Blueprint("github", __name__)
 
 def _clean_github_username(raw: str) -> str:
     val = (raw or "").strip().rstrip("/")
@@ -16,15 +15,12 @@ def _clean_github_username(raw: str) -> str:
         val = val.split("github.com/")[-1].split("/")[0]
     return val.lstrip("@")
 
-
 def _get_user_github_account(user_id: int) -> GitHubAccount | None:
     return GitHubAccount.query.filter_by(user_id=user_id).first()
-
 
 @github_bp.errorhandler(GitHubServiceError)
 def handle_github_error(err: GitHubServiceError):
     return jsonify({"error": err.message}), err.status_code
-
 
 @github_bp.route("/status", methods=["GET"])
 @login_required
@@ -42,7 +38,6 @@ def github_connection_status():
         "connected_at": account.connected_at.isoformat() if account.connected_at else None,
         "profile": profile,
     }), 200
-
 
 @github_bp.route("/connect", methods=["POST"])
 @login_required
@@ -83,7 +78,6 @@ def connect_github_account():
         "profile": gh_profile,
     }), 201
 
-
 @github_bp.route("/disconnect", methods=["DELETE"])
 @login_required
 def disconnect_github_account():
@@ -95,7 +89,6 @@ def disconnect_github_account():
     db.session.delete(account)
     db.session.commit()
     return jsonify({"connected": False, "message": "GitHub account disconnected successfully."}), 200
-
 
 @github_bp.route("/repositories", methods=["GET"])
 @login_required
@@ -109,7 +102,6 @@ def list_github_repositories():
     repositories = service.list_repositories(github_username=account.github_username)
     return jsonify({"github_username": account.github_username, "repositories": repositories}), 200
 
-
 @github_bp.route("/repositories/<owner>/<repo>/commits", methods=["GET"])
 @login_required
 def get_repository_commits(owner: str, repo: str):
@@ -122,7 +114,6 @@ def get_repository_commits(owner: str, repo: str):
     commits = service.get_repo_commits(owner=owner, repo=repo)
     return jsonify({"repository": f"{owner}/{repo}", "commits": commits}), 200
 
-
 @github_bp.route("/issues", methods=["GET"])
 @login_required
 def list_github_issues():
@@ -134,7 +125,6 @@ def list_github_issues():
     service = GitHubService(encrypted_token=account.access_token_encrypted)
     issues = service.list_open_issues(github_username=account.github_username)
     return jsonify({"github_username": account.github_username, "issues": issues}), 200
-
 
 @github_bp.route("/pulls", methods=["GET"])
 @login_required

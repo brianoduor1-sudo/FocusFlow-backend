@@ -46,7 +46,6 @@ PLANS = {
     },
 }
 
-
 def _get_or_create_subscription(user_id: int) -> Subscription:
     sub = Subscription.query.filter_by(user_id=user_id).first()
     if not sub:
@@ -60,7 +59,6 @@ def _get_or_create_subscription(user_id: int) -> Subscription:
         db.session.add(sub)
         db.session.commit()
     return sub
-
 
 def _serialize_subscription(sub: Subscription) -> dict:
     plan_details = PLANS.get(sub.plan, PLANS["free"])
@@ -77,26 +75,23 @@ def _serialize_subscription(sub: Subscription) -> dict:
         "cancel_at_period_end": sub.cancel_at_period_end,
     }
 
-
 @subscription_bp.get("/plans")
 def list_plans():
-    """GET /api/subscription/plans — Public list of available subscription tiers."""
+    
     return jsonify({"plans": list(PLANS.values())}), 200
-
 
 @subscription_bp.get("")
 @jwt_required()
 def get_current_subscription():
-    """GET /api/subscription — Retrieve the authenticated user's current subscription."""
+    
     user_id = int(get_jwt_identity())
     sub = _get_or_create_subscription(user_id)
     return jsonify(_serialize_subscription(sub)), 200
 
-
 @subscription_bp.post("/upgrade")
 @jwt_required()
 def upgrade_subscription():
-    """POST /api/subscription/upgrade — Switch to a paid plan ('pro' or 'team')."""
+    
     user_id = int(get_jwt_identity())
     data = request.get_json() or {}
 
@@ -126,11 +121,10 @@ def upgrade_subscription():
         "subscription": _serialize_subscription(sub),
     }), 200
 
-
 @subscription_bp.post("/cancel")
 @jwt_required()
 def cancel_subscription():
-    """POST /api/subscription/cancel — Schedule cancellation at the end of the billing period."""
+    
     user_id = int(get_jwt_identity())
     sub = _get_or_create_subscription(user_id)
 
@@ -146,11 +140,10 @@ def cancel_subscription():
         "subscription": _serialize_subscription(sub),
     }), 200
 
-
 @subscription_bp.post("/reactivate")
 @jwt_required()
 def reactivate_subscription():
-    """POST /api/subscription/reactivate — Undo a scheduled cancellation."""
+    
     user_id = int(get_jwt_identity())
     sub = _get_or_create_subscription(user_id)
 

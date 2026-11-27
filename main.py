@@ -37,7 +37,6 @@ try:
 except ImportError:
     analytics_bp = None
 
-
 def create_app() -> Flask:
     app = Flask(__name__)
 
@@ -120,7 +119,6 @@ def create_app() -> Flask:
         db.create_all()
 
     return app
-
 
 app = create_app()
 

@@ -10,7 +10,6 @@ from app.helpers import to_iso, error, validation_error
 
 projects_bp = Blueprint("projects", __name__, url_prefix="/projects")
 
-
 def _derive_key(title, custom_key=None):
     if custom_key and custom_key.strip():
         cleaned = re.sub(r"[^A-Za-z0-9]", "", custom_key.strip()).upper()
@@ -23,7 +22,6 @@ def _derive_key(title, custom_key=None):
         return words[0][:4].upper()
     return "PRJ"
 
-
 def _parse_divisions(raw):
     if isinstance(raw, list):
         items = [str(x).strip() for x in raw if str(x).strip()]
@@ -32,7 +30,6 @@ def _parse_divisions(raw):
     else:
         items = []
     return items or ["Architecture", "Backend API", "Frontend UI", "QA & Testing"]
-
 
 def project_to_dict(project, include_tasks=False):
     tasks = Task.query.filter_by(project_id=project.id, user_id=project.user_id).all()
@@ -103,7 +100,6 @@ def project_to_dict(project, include_tasks=False):
         data["tasks"] = [task_to_dict(t) for t in tasks]
     return data
 
-
 def check_project_data(data):
     errors = {}
     name = (data.get("name") or "").strip()
@@ -118,7 +114,6 @@ def check_project_data(data):
 
     return errors
 
-
 @projects_bp.route("", methods=["GET"], strict_slashes=False)
 @jwt_required()
 def get_projects():
@@ -129,7 +124,6 @@ def get_projects():
         .all()
     )
     return jsonify([project_to_dict(p, include_tasks=True) for p in projects]), 200
-
 
 @projects_bp.route("", methods=["POST"], strict_slashes=False)
 @jwt_required()
@@ -154,7 +148,6 @@ def create_project():
     db.session.commit()
 
     return jsonify(project_to_dict(project, include_tasks=True)), 201
-
 
 @projects_bp.route("/<int:project_id>", methods=["PUT"], strict_slashes=False)
 @jwt_required()
@@ -186,7 +179,6 @@ def update_project(project_id):
 
     db.session.commit()
     return jsonify(project_to_dict(project, include_tasks=True)), 200
-
 
 @projects_bp.route("/<int:project_id>", methods=["DELETE"], strict_slashes=False)
 @jwt_required()

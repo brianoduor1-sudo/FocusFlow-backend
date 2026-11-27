@@ -10,9 +10,8 @@ focus_bp = Blueprint("focus", __name__)
 
 SESSION_TYPES = ["focus", "short_break", "long_break"]
 
-
 def session_to_dict(session):
-    # database names -> names the frontend uses
+    
     return {
         "id": session.id,
         "task_id": session.task_id,
@@ -21,7 +20,6 @@ def session_to_dict(session):
         "started_at": to_iso(session.start_time),
         "ended_at": to_iso(session.end_time),
     }
-
 
 @focus_bp.route("/", methods=["GET"])
 @jwt_required()
@@ -36,7 +34,6 @@ def get_sessions():
 
     return jsonify([session_to_dict(s) for s in sessions]), 200
 
-
 @focus_bp.route("/", methods=["POST"])
 @jwt_required()
 def save_session():
@@ -44,12 +41,12 @@ def save_session():
     data = request.get_json(silent=True) or {}
     errors = {}
 
-    # 1. type of session
+    
     session_type = data.get("session_type") or "focus"
     if session_type not in SESSION_TYPES:
         errors["session_type"] = "Must be focus, short_break or long_break"
 
-    # 2. start and end times (the frontend sends ISO strings)
+    
     started_at = parse_datetime(data.get("started_at"))
     ended_at = parse_datetime(data.get("ended_at"))
 
@@ -60,7 +57,7 @@ def save_session():
     if started_at and ended_at and ended_at < started_at:
         errors["ended_at"] = "Must be after started_at"
 
-    # 3. duration: use the number we got, or work it out from the times
+    
     duration = data.get("duration_minutes")
     if duration is None or duration == "":
         if started_at and ended_at:
@@ -76,7 +73,7 @@ def save_session():
             if duration < 0 or duration > 1440:
                 errors["duration_minutes"] = "Must be between 0 and 1440"
 
-    # 4. the task is optional but it must belong to this user
+    
     task_id = data.get("task_id")
     if task_id is None or task_id == "":
         task_id = None
@@ -93,7 +90,7 @@ def save_session():
     if errors:
         return validation_error(errors)
 
-    # fill in a missing time from the other one
+    
     if ended_at is None:
         if started_at:
             ended_at = started_at + timedelta(minutes=duration)

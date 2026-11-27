@@ -2,9 +2,8 @@ from flask import Flask, jsonify
 from werkzeug.exceptions import HTTPException
 from app.services.github_service import GitHubAPIError
 
-
 def register_error_handlers(app: Flask) -> None:
-    """Registers global JSON error handlers on the Flask application."""
+    
 
     @app.errorhandler(GitHubAPIError)
     def handle_github_api_error(err: GitHubAPIError):

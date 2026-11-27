@@ -1,14 +1,12 @@
 from app.database import db
 from datetime import datetime
 
-
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     password_hash = db.Column(db.String(200), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
-
 
 class Project(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -23,7 +21,6 @@ class Project(db.Model):
 
     tasks = db.relationship('Task', backref='project', lazy=True)
 
-
 class Task(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
@@ -31,14 +28,13 @@ class Task(db.Model):
     title = db.Column(db.String(200), nullable=False)
     description = db.Column(db.Text, default="")
     division = db.Column(db.String(80), default="General")
-    issue_type = db.Column(db.String(20), default="task")  # epic, story, task, bug
+    issue_type = db.Column(db.String(20), default="task")  
     story_points = db.Column(db.Integer, default=1)
-    status = db.Column(db.String(20), default='todo')  # todo, in_progress, in_review, done
+    status = db.Column(db.String(20), default='todo')  
     priority = db.Column(db.String(20), default='medium')
     due_date = db.Column(db.Date)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     completed_at = db.Column(db.DateTime, nullable=True)
-
 
 class Note(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -50,7 +46,6 @@ class Note(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
-
 class FocusSession(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
@@ -59,14 +54,12 @@ class FocusSession(db.Model):
     end_time = db.Column(db.DateTime)
     duration_min = db.Column(db.Integer, default=0)
 
-
 class GitHubActivity(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     repo = db.Column(db.String(150))
     commits = db.Column(db.Integer, default=0)
     date = db.Column(db.Date)
-
 
 class Subscription(db.Model):
     __tablename__ = "subscriptions"
@@ -82,7 +75,6 @@ class Subscription(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
-
 class GitHubAccount(db.Model):
     __tablename__ = "github_accounts"
     id = db.Column(db.Integer, primary_key=True)
@@ -90,7 +82,6 @@ class GitHubAccount(db.Model):
     github_username = db.Column(db.String(100), nullable=False)
     access_token_encrypted = db.Column(db.Text, nullable=False, default="public_only")
     connected_at = db.Column(db.DateTime, default=datetime.utcnow)
-
 
 class PasswordReset(db.Model):
     id = db.Column(db.Integer, primary_key=True)
